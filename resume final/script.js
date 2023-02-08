@@ -27,45 +27,53 @@ function scrollVertically(targetSection) {
     window.scrollBy(0,70);
 }
 
+var progressBars = document.querySelectorAll(".skill-progress > div");
 
-var progressBars = document.querySelectorAll('.skill-progress > div');
-var skillsContainer = document.getElementById('skills-container');
-window.addEventListener('scroll', checkScroll);
-var animationDone = false;
 
-function initializeBars(){
-    for(let bar of progressBars){
-        bar.style.width = 0 + "%";
-    }
+function initialiseBar(bar) {
+    bar.setAttribute("data-visited", false);
+    bar.style.width = 0 + '%';
 }
 
-initializeBars();
-
-function fillBars() {
-    for (let bar of progressBars) {
-        let targetWidth = bar.getAttribute('data-bar-width');
-        let currentWidth = 0;
-        let interval = setInterval(function(){
-            if (currentWidth > targetWidth){
-                clearInterval(interval);
-                return;
-            }
-            currentWidth++;
-            bar.style.width = currentWidth + '%';
-        }, 15);
-    }
+for (var bar of progressBars) {
+    initialiseBar(bar);
 }
+
+
+
+function fillBar(bar) {
+
+    var currentWidth = 0;
+    var targetWidth = bar.getAttribute("data-bar-width");
+    var interval = setInterval(function () {
+        if (currentWidth >= targetWidth) {
+            clearInterval(interval);
+            return;
+        }
+        currentWidth++;
+        bar.style.width = currentWidth + '%';
+    }, 5);
+
+}
+
+
 
 function checkScroll() {
-    // You have to check wheather still container is visible
-    var coordinates = skillsContainer.getBoundingClientRect();
-    if (!animationDone && coordinates.top < window.innerHeight){
-        animationDone = true;
-        console.log('skills section vis');
-        fillBars();
-    }
-    else if (coordinates.top > window.innerHeight){
-        animationDone = false;
-        initializeBars();
+
+    for (let bar of progressBars) {
+        var barCoordinates = bar.getBoundingClientRect();
+        if ((bar.getAttribute("data-visited") == "false") &&
+            (barCoordinates.top <= (window.innerHeight - barCoordinates.height))) {
+            bar.setAttribute("data-visited", true);
+            fillBar(bar);
+        } else if (barCoordinates.top > window.innerHeight) {
+            bar.setAttribute("data-visited", false);
+            initialiseBar(bar);
+        }
+
     }
 }
+
+
+
+window.addEventListener("scroll", checkScroll);
